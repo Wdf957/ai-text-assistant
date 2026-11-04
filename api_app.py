@@ -1,3 +1,4 @@
+import requests.exceptions
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from deepseek_chat import ask_deepseek
@@ -27,9 +28,16 @@ def analyze(data: AnalyzeRequest):
 文本：
 {data.text}
 """
-    result = ask_deepseek(prompt)
+    try:
+        result = ask_deepseek(prompt)
+        
+    except requests.exceptions.Timeout:
+        raise HTTPException(
+            status_code=504,
+            detail="上游超时：DeepSeek服务未在30秒内返回响应"
+        )
+    
     print("模型原始返回内容：",repr(result))
-
     try:
         analysis_data = json.loads(result)
 
