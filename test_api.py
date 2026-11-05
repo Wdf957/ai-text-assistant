@@ -11,10 +11,6 @@ from api_app import app
 client = TestClient(app)
 
 
-def test_hello():
-    assert 1 + 1 == 2
-
-
 def test_home():
     resp = client.get("/")
     assert resp.status_code == 200
@@ -38,4 +34,12 @@ def test_normal_returns_200():
 def test_no_key_raise_config_error(monkeypatch):
     monkeypatch.delenv("DEEPSEEK_API_KEY",raising=False)
     with pytest.raises(DeepSeekConfigError):
-        deepseek_chat.ask_deepseek("Java怎么学")
+        deepseek_chat.ask_deepseek("Javazenmzue")
+
+
+def test_text_too_long_returns_400():
+    with patch("api_app.ask_deepseek") as mock_ask:
+        resp = client.post("/analyze", json={"text": "文" * 501})
+        assert resp.status_code == 400
+        mock_ask.assert_not_called()
+

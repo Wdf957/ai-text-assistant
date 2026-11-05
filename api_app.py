@@ -13,12 +13,21 @@ class AnalyzeRequest(BaseModel):
 def home():
     return {"message":"Hello FastAPI"}
 
-@app.get("/analyze")
-def homework(text):
-    return {"received":text}
-
 @app.post("/analyze")
 def analyze(data: AnalyzeRequest):
+    
+    if len(data.text) > 500:
+        raise HTTPException(
+            status_code=400,
+            detail=f"请求文本过长，最大长度为500字符，输入长度为{len(data.text)}"
+        )
+
+    if len(data.text) == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="请求文本为空"
+        )
+    
     prompt = f"""
 请分析下面这段文本，概括主要内容并提取三个关键词。
 只返回合法 JSON,不要添加 Markdown 代码围栏。
@@ -28,6 +37,7 @@ def analyze(data: AnalyzeRequest):
 文本：
 {data.text}
 """
+    
     try:
         result = ask_deepseek(prompt)
         
@@ -51,13 +61,13 @@ def analyze(data: AnalyzeRequest):
         raise HTTPException(
            status_code=502,
            detail="模型返回的内容不是合法JSON"
-       )
+        )
 
     if not isinstance(analysis_data,dict):
             raise HTTPException(
                 status_code=502,
                 detail="校验失败，模型返回的数据不是JSON对象"
-            )
+        )
 
     if "summary" not in analysis_data or "keywords" not in analysis_data:
         raise HTTPException(
@@ -78,5 +88,5 @@ def analyze(data: AnalyzeRequest):
             status_code=502,
             detail="校验失败，keywords元素错误"
         )
-    
+
     return analysis_data
