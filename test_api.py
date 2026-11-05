@@ -1,7 +1,10 @@
 from fastapi.testclient import TestClient
 from unittest.mock import patch
 
+import pytest
 import requests
+import deepseek_chat
+from deepseek_chat import DeepSeekConfigError
 
 from api_app import app
 
@@ -30,3 +33,9 @@ def test_normal_returns_200():
         resp = client.post("/analyze", json={"text": "测试文本"})
         assert resp.status_code == 200
         assert resp.json()["summary"] == "这是测试摘要"
+
+
+def test_no_key_raise_config_error(monkeypatch):
+    monkeypatch.delenv("DEEPSEEK_API_KEY",raising=False)
+    with pytest.raises(DeepSeekConfigError):
+        deepseek_chat.ask_deepseek("Java怎么学")

@@ -1,11 +1,14 @@
 import os
 import requests
 
+class DeepSeekConfigError(Exception):
+    """DeepSeek 相关配置缺失或错误"""
+
 def ask_deepseek(question):
     api_key = os.environ.get("DEEPSEEK_API_KEY")
 
     if not api_key:
-        raise SystemExit("API key ismissing")
+        raise DeepSeekConfigError("缺少 DEEPSEEK_API_KEY 环境变量")
     print("API key is available")
 
     url = "https://api.deepseek.com/chat/completions"

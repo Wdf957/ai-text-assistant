@@ -1,7 +1,7 @@
 import requests.exceptions
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from deepseek_chat import ask_deepseek
+from deepseek_chat import ask_deepseek,DeepSeekConfigError
 import json
 
 app = FastAPI()
@@ -35,6 +35,12 @@ def analyze(data: AnalyzeRequest):
         raise HTTPException(
             status_code=504,
             detail="上游超时：DeepSeek服务未在30秒内返回响应"
+        )
+
+    except DeepSeekConfigError:
+        raise HTTPException(
+            status_code=500,
+            detail="服务端配置缺失：未设置DEEPSEEK_API_KEY"
         )
     
     print("模型原始返回内容：",repr(result))
