@@ -1,5 +1,11 @@
 ﻿# ai-text-assistant
 
+## 在线体验
+
+https://ai-text-assistant-y5yg.onrender.com/docs
+
+点开即可直接调用，无需安装。免费实例闲置 15 分钟休眠，首次访问需等待约 1 分钟。
+
 ## 项目简介
 基于 FastAPI + DeepSeek 搭建的轻量文本分析服务，快速接入大模型能力。
 
